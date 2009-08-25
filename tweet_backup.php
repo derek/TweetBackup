@@ -3,47 +3,43 @@
 	$twitter_username = "derek";
 	$twitter_password = "yourpass";
 	
-	$db_host 		= "127.0.0.1";
-	$db_username 	= "derek";
-	$db_password 	= "yourpass";
-	$db_name 		= "backup";
+	$db_host		= "127.0.0.1";
+	$db_username	= "derek";
+	$db_password	= "yourpass";
+	$db_name		= "backup";
 	
-	// Connect to the database.  I'm using PostgreSQL, so you may need to replace this with a MySQL (or other DB) function.  
+	// Connect to the database.	 I'm using PostgreSQL, so you may need to replace this with a MySQL (or other DB) function.	 
 	// If you do change it, edit the DB function calls below as well
-	$conn_string 	= "host={$db_host} port=5432 dbname={$db_name} user={$db_username} password={$db_password}";
-	$db 			= pg_connect($conn_string);
-	/*** SHOULDN'T HAVE TO EDIT ANYTHING BEYOND HERE ***/
-	
-	
-	
-	
-	
+	$conn_string	= "host={$db_host} port=5432 dbname={$db_name} user={$db_username} password={$db_password}";
+	$db				= pg_connect($conn_string);
 	
 	// First, backup a users tweets
 	$services[] = array(
-		"db_table" 	 => "twitter.{$twitter_username}_tweets",
+		"db_table"	 => "twitter.{$twitter_username}_tweets",
 		"api_url"	 => "http://twitter.com/statuses/user_timeline.json",
-		"start_page" => "17"
+		"start_page" => "17" // Change to be the max page for your user. To find out #, adjust "page" var @ http://twitter.com/statuses/user_timeline.xml?count=200&page=3
 	);
 
 	// Second, backup the mentions (replies) to the user
 	$services[] = array(
-		"db_table" 	 => "twitter.{$twitter_username}_mentions",
+		"db_table"	 => "twitter.{$twitter_username}_mentions",
 		"api_url"	 => "http://twitter.com/statuses/mentions.json",
-		"start_page" => "10"
+		"start_page" => "6" // Change to be the max page for your user. To find out #, adjust "page" var @ http://twitter.com/statuses/mentions.xml?count=200&page=3
 	);
+	
+	/*** SHOULDN'T HAVE TO EDIT ANYTHING BEYOND HERE ***/
 	
 	
 	foreach ($services as $service)
 	{
 		// Create the table if it doesn't already exist
 		$sql = "CREATE TABLE {$service['db_table']} (
-		    status_id 				bigint 	NOT NULL UNIQUE PRIMARY KEY,
-		    in_reply_to_status_id 	bigint,
-		    text 					text 	NOT NULL,
-		    created_at 				varchar NOT NULL,
-		    raw 					text 	NOT NULL,
-		    date_created 			timestamp without time zone DEFAULT now() NOT NULL
+			status_id				bigint	NOT NULL UNIQUE PRIMARY KEY,
+			in_reply_to_status_id	bigint,
+			text					text	NOT NULL,
+			created_at				varchar NOT NULL,
+			raw						text	NOT NULL,
+			date_created			timestamp without time zone DEFAULT now() NOT NULL
 		);";
 		@pg_query($db, $sql);
 
