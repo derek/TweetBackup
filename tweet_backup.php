@@ -1,12 +1,10 @@
 <?
-	/*** ALL THE USER DEFINED STUFF ***/
-	$twitter_username = "derek";
-	$twitter_password = "yourpass";
-	
-	$db_host		= "127.0.0.1";
-	$db_username	= "derek";
-	$db_password	= "yourpass";
-	$db_name		= "backup";
+
+	// Load in the settings
+	if (!file_exists("conf.php"))
+		die("Please copy conf.sample.php to conf.php and populate with your information.");
+		
+	require_once("conf.php");
 	
 	// Connect to the database.	 I'm using PostgreSQL, so you may need to replace this with a MySQL (or other DB) function.	 
 	// If you do change it, edit the DB function calls below as well
@@ -17,17 +15,15 @@
 	$services[] = array(
 		"db_table"	 => "twitter.{$twitter_username}_tweets",
 		"api_url"	 => "http://twitter.com/statuses/user_timeline.json",
-		"start_page" => "17" // Change to be the max page for your user. To find out #, adjust "page" var @ http://twitter.com/statuses/user_timeline.xml?count=200&page=3
+		"start_page" => "3" // Change to be the max page for your user. To find out #, adjust "page" var @ http://twitter.com/statuses/user_timeline.xml?count=200&page=3
 	);
 
 	// Second, backup the mentions (replies) to the user
 	$services[] = array(
 		"db_table"	 => "twitter.{$twitter_username}_mentions",
 		"api_url"	 => "http://twitter.com/statuses/mentions.json",
-		"start_page" => "6" // Change to be the max page for your user. To find out #, adjust "page" var @ http://twitter.com/statuses/mentions.xml?count=200&page=3
+		"start_page" => "2" // Change to be the max page for your user. To find out #, adjust "page" var @ http://twitter.com/statuses/mentions.xml?count=200&page=3
 	);
-	
-	/*** SHOULDN'T HAVE TO EDIT ANYTHING BEYOND HERE ***/
 	
 	
 	foreach ($services as $service)
